@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -30,11 +32,12 @@ type Blog struct {
 	name        string
 	IsActive    bool
 	Posts       []Post
-	subscribers []Subscrable
+	Subscribers []Subscrable
+	Link        string
 }
 
 func NewBlog(name string) Blog {
-	return Blog{name: name, IsActive: true}
+	return Blog{name: name, IsActive: true, Link: RandomString(8)}
 }
 
 func (b *Blog) AddPost(title, description string) {
@@ -45,13 +48,13 @@ func (b *Blog) AddPost(title, description string) {
 }
 
 func (b *Blog) AddSubscriber(subscriber Subscrable) {
-	b.subscribers = append(b.subscribers, subscriber)
+	b.Subscribers = append(b.Subscribers, subscriber)
 }
 
 func (b *Blog) DeleteSubscriber(subscriber Subscrable) bool {
-	for i, sub := range b.subscribers {
+	for i, sub := range b.Subscribers {
 		if sub == subscriber {
-			b.subscribers = append(b.subscribers[:i], b.subscribers[i+1:]...)
+			b.Subscribers = append(b.Subscribers[:i], b.Subscribers[i+1:]...)
 			return true
 		}
 	}
@@ -59,16 +62,26 @@ func (b *Blog) DeleteSubscriber(subscriber Subscrable) bool {
 }
 
 func (b *Blog) notifyAll(post Post, blogName string) {
-	for _, subscrable := range b.subscribers {
+	for _, subscrable := range b.Subscribers {
 		subscrable.update(post, blogName)
 	}
 }
 
-func main() {
+func RandomString(n int) string {
+	alphabet := []rune("abcdefghijklmnopqrstuvwxyz")
+	result := strings.Builder{}
+	for i := 0; i < n; i++ {
+		result.WriteRune(alphabet[rand.Int31n(26)])
+	}
+	return result.String()
+}
+
+func observer() {
 	sultan := NewUser("Sultan")
 	Bob := NewUser("Bob")
 
 	blog := NewBlog("GoLang Blog")
+
 	blog.AddSubscriber(sultan)
 	blog.AddSubscriber(Bob)
 
